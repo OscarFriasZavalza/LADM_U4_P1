@@ -20,12 +20,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     var msjmanager = SmsManager.getDefault()
+    var listaIds= ArrayList<String>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        mostrarTodo()
+        mostrar()
 
         println("PERMISOS"+(PermissionChecker.checkSelfPermission(this,"android.permission.SEND_SMS")== PermissionChecker.PERMISSION_GRANTED))
         binding.botonEnviar.setOnClickListener {
@@ -55,20 +57,25 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this,"MENSAJE ENVIADO",Toast.LENGTH_LONG).show()
     }
 
-    fun mostrarTodo(){
-        FirebaseFirestore.getInstance().collection("smsenviados")
-            .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                if(firebaseFirestoreException!=null){
-                    aler("NO SE REALIZO LA CONSULTA")
+    private fun mostrar() {
+        FirebaseFirestore.getInstance()
+            .collection("smsenviados")
+            .addSnapshotListener { value, error ->
+                if(error!=null){
+                    aler("NO SE PUDO REALIZAR LA CONSULTA")
                     return@addSnapshotListener
                 }
-                var lista =ArrayList<String>()
-                for (doc in querySnapshot!!){
-                    var cad = doc.getString("Telefono:")+"\n"+doc.getString("Mensaje:")
-                    lista.add(cad)
+                var lista= ArrayList<String>() //lista se comporta como un curso
+                listaIds.clear()
+
+                for(documento in value!!){
+                    val cadena= documento.get("telefono").toString()+"\n"+
+                            documento.getString("mensaje")
+                    lista.add(cadena)
+                    listaIds.add(documento.id)
                 }
-                binding.listMsj.adapter=
-                    ArrayAdapter<String>(this, R.layout.simple_list_item_1,lista)
+                binding.listMsj.adapter=ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1,lista)
             }
     }
 
