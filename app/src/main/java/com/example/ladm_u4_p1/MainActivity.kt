@@ -1,84 +1,102 @@
 package com.example.ladm_u4_p1
 
+import android.R
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteException
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.telephony.SmsManager
+import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.PermissionChecker
+import com.example.ladm_u4_p1.databinding.ActivityMainBinding
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    val siPermiso=1
-    val siPermisoReciver=2
+    lateinit var binding: ActivityMainBinding
+    var msjmanager = SmsManager.getDefault()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        mostrarTodo()
 
-        if(ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.RECEIVE_SMS)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.RECEIVE_SMS),siPermisoReciver
-            )
-        }
-
-
-
-        button.setOnClickListener{
-            if(ActivityCompat.checkSelfPermission(this,
-                    android.Manifest.permission.SEND_SMS)!= PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(android.Manifest.permission.SEND_SMS),siPermiso
-                )
-            }else{
-                envioSMS()
+        println("PERMISOS"+(PermissionChecker.checkSelfPermission(this,"android.permission.SEND_SMS")== PermissionChecker.PERMISSION_GRANTED))
+        binding.botonEnviar.setOnClickListener {
+            if(binding.txtTelef.text.isEmpty()){
+                AlertDialog.Builder(this).setTitle("ERROR")
+                    .setMessage("Debes ingresar un número de teléfono")
+                    .setNeutralButton("OK"){d,i->}
+                    .show()
+                return@setOnClickListener
             }
+            if(binding.txtMensaje.text.isEmpty()){
+                AlertDialog.Builder(this).setTitle("ERROR")
+                    .setMessage("Debes ingresar un mensaje")
+                    .setNeutralButton("OK"){d,i->}
+                    .show()
+                return@setOnClickListener
+            }
+            enviarSMS(binding.txtTelef,binding.txtMensaje)
+
+
         }
-        textview.setOnClickListener {
-            try {
-                var cursor=BaseDatos(this,"entrantes",null,1)
-                    .readableDatabase
-                    .rawQuery("SELECT * FROM ENTRANTES",null)
-                var ultimo=""
-                if(cursor.moveToFirst()){
-                    do{
-                        ultimo= "ultimo mensaje ${cursor.getString(0)} \n" +
-                                "mensaje sms ${cursor.getString(1)}"
-                    }while (cursor.moveToNext())
-                }else{
-                    ultimo="sin mensajes aun, tabla vacia"
+    }
+    fun enviarSMS(telefono: EditText, mensaje: EditText){
+        msjmanager.sendTextMessage(telefono.text.toString(),null,mensaje.text.toString(),null,null)
+        insertarFB(telefono.text.toString(),mensaje.text.toString())
+        limpiarCampos()
+        Toast.makeText(this,"MENSAJE ENVIADO",Toast.LENGTH_LONG).show()
+    }
+
+    fun mostrarTodo(){
+        FirebaseFirestore.getInstance().collection("smsenviados")
+            .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                if(firebaseFirestoreException!=null){
+                    aler("NO SE REALIZO LA CONSULTA")
+                    return@addSnapshotListener
                 }
-                textview.setText(ultimo)
-            }catch (err: SQLiteException){
-                Toast.makeText(this,err.message, Toast.LENGTH_LONG).show()
+                var lista =ArrayList<String>()
+                for (doc in querySnapshot!!){
+                    var cad = doc.getString("Telefono:")+"\n"+doc.getString("Mensaje:")
+                    lista.add(cad)
+                }
+                binding.listMsj.adapter=
+                    ArrayAdapter<String>(this, R.layout.simple_list_item_1,lista)
             }
-        }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode==siPermiso){
-            envioSMS()
-        }
-        if(requestCode==siPermiso){
-            mensajeRecibir()
-        }
+    fun insertarFB(telefono:String,mensaje:String){
+        var datos = hashMapOf(
+            "telefono" to telefono,
+            "mensaje" to mensaje
+        )
+        FirebaseFirestore.getInstance().collection("smsenviados")
+            .add(datos)
+            .addOnSuccessListener {
+                println("SE INSERTO CORRECTAMENTE")
+            }
+            .addOnFailureListener {
+                aler(it.message!!)
+            }
     }
 
-    private fun mensajeRecibir() {
-        AlertDialog.Builder(this).setMessage("se otorgo recibir").show()
+    fun limpiarCampos(){
+        binding.txtTelef.setText("")
+        binding.txtMensaje.setText("")
     }
 
-    private fun envioSMS() {
-        SmsManager.getDefault().sendTextMessage(et_mensaje.text.toString(),null,
-            et_mensaje.text.toString(),null,null)
-        Toast.makeText(this,"se envio el sms", Toast.LENGTH_LONG).show()
-
+    fun aler(m:String){
+        AlertDialog.Builder(this)
+            .setTitle("Atención")
+            .setMessage(m)
+            .setPositiveButton("OK"){d,i->}
+            .show()
     }
 }

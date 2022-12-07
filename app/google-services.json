@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "363602068025",
+    "project_id": "smsenviadosp1u4",
+    "storage_bucket": "smsenviadosp1u4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:363602068025:android:457b8173475f09b55e83e8",
+        "android_client_info": {
+          "package_name": "com.example.ladm_u4_p1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "363602068025-k1kt2os8gbto3d1af46lgd84ot7bbc41.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo0VCm3ZSm9M4X3VaKEXQbIj44ZGiGNf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "363602068025-k1kt2os8gbto3d1af46lgd84ot7bbc41.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

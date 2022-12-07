@@ -6,32 +6,36 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:orientation="vertical"
-    android:padding="20dp">
-
+    android:padding="15dp">
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="numero de telefono"
-        android:id="@+id/et_numero"
+        android:hint="Número de teléfono"
+        android:id="@+id/txtTelef"
+        android:inputType="phone"
         />
+
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mensaje a enviar"
-        android:id="@+id/et_mensaje"
+        android:hint="Mensaje"
+        android:id="@+id/txtMensaje"
         />
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/button"
-        android:text="envio sms"
+        android:text="Enviar"
+        android:id="@+id/botonEnviar"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
         />
-    <TextView
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:text="utlimo mensaje recibido"
-        android:id="@+id/textview"
+        android:layout_height="match_parent"
+        android:id="@+id/listMsj"
+        android:layout_marginTop="10dp"
+
         />
 </LinearLayout>
