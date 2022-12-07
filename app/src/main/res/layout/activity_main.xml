@@ -8,19 +8,31 @@
     android:orientation="vertical"
     android:padding="15dp">
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Número de teléfono"
-        android:id="@+id/txtTelef"
-        android:inputType="phone"
+        android:text="MESSAGES"
+        android:textSize="20dp"
+        android:textColor="#2183AF"
+        android:textStyle="bold"
+        android:gravity="center"
         />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mensaje"
+        android:hint="Ingrese número de teléfono"
+        android:id="@+id/txtTelef"
+        android:inputType="phone"
+        android:layout_marginTop="10dp"
+        />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ingrese un mensaje"
         android:id="@+id/txtMensaje"
+        android:layout_marginTop="10dp"
         />
 
     <Button
@@ -28,14 +40,22 @@
         android:layout_height="wrap_content"
         android:text="Enviar"
         android:id="@+id/botonEnviar"
-        android:layout_gravity="center"
-        android:layout_marginTop="5dp"
+        android:backgroundTint="#2183AF"
+        android:layout_marginTop="10dp"
         />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enviados: "
+        android:textSize="17dp"
+        android:layout_marginTop="10dp"
+        />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/listMsj"
         android:layout_marginTop="10dp"
-
         />
 </LinearLayout>

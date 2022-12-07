@@ -84,12 +84,12 @@ class MainActivity : AppCompatActivity() {
     private fun envioSMS() {
         SmsManager.getDefault().sendTextMessage(binding.txtTelef.text.toString(),null,
             binding.txtMensaje.text.toString(),null,null)
-        insertarFB(binding.txtTelef.text.toString(),binding.txtMensaje.text.toString())
-        Toast.makeText(this,"se envio el sms",Toast.LENGTH_LONG).show()
-        limpiarCampos()
+        insertar(binding.txtTelef.text.toString(),binding.txtMensaje.text.toString())
+        Toast.makeText(this,"SE ENVIO EL MENSAJE",Toast.LENGTH_LONG).show()
+        limpiar()
 
     }
-    fun insertarFB(telefono:String,mensaje:String){
+    fun insertar(telefono:String,mensaje:String){
         var datos = hashMapOf(
             "telefono" to telefono,
             "mensaje" to mensaje,
@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    fun limpiarCampos(){
+    fun limpiar(){
         binding.txtTelef.setText("")
         binding.txtMensaje.setText("")
     }
