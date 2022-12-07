@@ -16,12 +16,13 @@ import com.example.ladm_u4_p1.databinding.ActivityMainBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    var msjmanager = SmsManager.getDefault()
     var listaIds= ArrayList<String>()
-
+    var siPermiso=1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         mostrar()
 
-        println("PERMISOS"+(PermissionChecker.checkSelfPermission(this,"android.permission.SEND_SMS")== PermissionChecker.PERMISSION_GRANTED))
         binding.botonEnviar.setOnClickListener {
             if(binding.txtTelef.text.isEmpty()){
                 AlertDialog.Builder(this).setTitle("ERROR")
@@ -45,17 +45,19 @@ class MainActivity : AppCompatActivity() {
                     .show()
                 return@setOnClickListener
             }
-            enviarSMS(binding.txtTelef,binding.txtMensaje)
+            if(ActivityCompat.checkSelfPermission(this,
+                    android.Manifest.permission.SEND_SMS)!=PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(android.Manifest.permission.SEND_SMS),siPermiso
+                )
+            }else{
+                envioSMS()
+            }
 
 
         }
     }
-    fun enviarSMS(telefono: EditText, mensaje: EditText){
-        msjmanager.sendTextMessage(telefono.text.toString(),null,mensaje.text.toString(),null,null)
-        insertarFB(telefono.text.toString(),mensaje.text.toString())
-        limpiarCampos()
-        Toast.makeText(this,"MENSAJE ENVIADO",Toast.LENGTH_LONG).show()
-    }
+
 
     private fun mostrar() {
         FirebaseFirestore.getInstance()
@@ -70,7 +72,8 @@ class MainActivity : AppCompatActivity() {
 
                 for(documento in value!!){
                     val cadena= documento.get("telefono").toString()+"\n"+
-                            documento.getString("mensaje")
+                            documento.getString("mensaje")+"\n"+
+                            documento.getDate("registrado")
                     lista.add(cadena)
                     listaIds.add(documento.id)
                 }
@@ -78,11 +81,20 @@ class MainActivity : AppCompatActivity() {
                     android.R.layout.simple_list_item_1,lista)
             }
     }
+    private fun envioSMS() {
+        SmsManager.getDefault().sendTextMessage(binding.txtTelef.text.toString(),null,
+            binding.txtMensaje.text.toString(),null,null)
+        insertarFB(binding.txtTelef.text.toString(),binding.txtMensaje.text.toString())
+        Toast.makeText(this,"se envio el sms",Toast.LENGTH_LONG).show()
+        limpiarCampos()
 
+    }
     fun insertarFB(telefono:String,mensaje:String){
         var datos = hashMapOf(
             "telefono" to telefono,
-            "mensaje" to mensaje
+            "mensaje" to mensaje,
+            "registrado" to Date()
+
         )
         FirebaseFirestore.getInstance().collection("smsenviados")
             .add(datos)
